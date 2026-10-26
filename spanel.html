@@ -333,7 +333,6 @@
     let currentStudentRoll = "";
 
     function hideIframeLoader(type) {
-        // 1.8 seconds ka delay taaki andar ki auto-search aur processing background me puri ho jaye aur user ko na dikhe
         setTimeout(function() {
             let loader = document.getElementById('loader-' + type);
             let iframe = document.getElementById('iframe-' + type);
@@ -523,6 +522,19 @@
             }
 
             let st = result.student || {};
+            
+            // Strict check: verify if the entered mobile matches the registered mobile completely
+            let registeredMobile = fetchAnyProp(st, ["Mobile No", "Mobile", "Phone"]) || "";
+            if (registeredMobile && mobile !== String(registeredMobile).trim()) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Login Failed',
+                    text: 'Please enter the correct registered mobile number',
+                    confirmButtonColor: '#ef4444'
+                });
+                return;
+            }
+
             studentRecords = result.fees || [];
 
             document.getElementById('st-name').innerText = st["Student Name"] || "Student";
@@ -533,7 +545,7 @@
             document.getElementById('st-mother').innerText = fetchAnyProp(st, ["Mother Name", "Mother's Name", "Mother"]) || "N/A";
             document.getElementById('st-dob').innerText = formatDateDDMMYYYY(st["DOB"]);
             document.getElementById('st-address').innerText = st["Address"] || "N/A";
-            document.getElementById('st-mobile').innerText = st["Mobile No"] || mobile;
+            document.getElementById('st-mobile').innerText = registeredMobile || mobile;
 
             let photoRaw = st["Photo url"] || st["Photo"] || "";
             document.getElementById('st-photo').src = getDirectImageUrl(photoRaw);
